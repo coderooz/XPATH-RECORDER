@@ -1,35 +1,63 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'self'">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="tailwind.css">
-    <link rel="stylesheet" href="styles.css">
-    <title>XPath Recorder</title>
-  </head>
-  <body >
-    <h3>XPath Recorder</h3>
-    <div class="controls">
-      <label><input type="checkbox" id="cropToggle" checked /> Crop element (default)</label>
-      <div class="recording-status">
-        <span id="statusDot" class="dot"></span>
-        <span id="statusText">Not Recording</span>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XPath Recorder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="popup">
+    <header class="header">
+      <div class="title-block">
+        <div class="icon">XR</div>
+        <div>
+          <div class="name">XPath Recorder</div>
+          <div class="subtitle">Record clicks · XPaths · Screenshots</div>
+        </div>
       </div>
-      <div class="footer">
-        <button id="start">Start Recording</button>
-        <button id="stop">Stop</button>
+    </header>
+
+    <main class="main">
+      <div class="status-row">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="dot gray" id="statusDot"></span>
+          <span id="statusText">Not Recording</span>
+        </div>
+
+        <div class="count" id="count">Items: 0</div>
       </div>
-    </div>
 
-    <div id="recordings"></div>
+      <div class="controls">
+        <button id="startBtn" class="btn primary">Start Recording</button>
+        <button id="stopBtn" class="btn" disabled>Stop Recording</button>
+      </div>
 
-    <div class="footer">
-      <button id="export">Export Data</button>
-    </div>
+      <div class="export-row">
+        <button id="downloadJson" class="btn">Download JSON</button>
+        <button id="downloadZip" class="btn">Download ZIP</button>
+        <button id="clearRecords" class="btn danger">Clear</button>
+      </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> 
-    <script src="popup.js"></script>
-  </body>
+      <div class="options">
+        <label>
+          <input type="checkbox" id="cropCheckbox" checked />
+          Crop to element (if unchecked, full viewport with red outline)
+        </label>
+      </div>
+
+      <div id="toast" class="toast hidden"></div>
+
+      <footer class="footer">
+        <small>Records persist across pages and reloads.</small>
+      </footer>
+    </main>
+  </div>
+
+  <!-- libs -->
+  <script src="libs/jszip.min.js"></script>
+  <script src="libs/FileSaver.min.js"></script>
+
+  <script src="popup.js"></script>
+</body>
 </html>

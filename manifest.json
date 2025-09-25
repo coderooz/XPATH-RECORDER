@@ -1,15 +1,41 @@
 {
   "manifest_version": 3,
-  "name": "XPath & UI Recorder",
-  "version": "1.2",
-  "description": "Record XPath, CSS paths and element UI screenshots across pages.",
+  "name": "XPath Recorder",
+  "description": "Record user clicks: capture XPaths and screenshots across pages, export JSON/ZIP.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "icons/16.png",
+      "20": "icons/20.png",
+      "29": "icons/29.png",
+      "32": "icons/32.png",
+      "40": "icons/40.png",
+      "48": "icons/48.png",
+      "50": "icons/50.png",
+      "55": "icons/55.png",
+      "57": "icons/57.png",
+      "60": "icons/60.png",
+      "72": "icons/72.png",
+      "100": "icons/100.png",
+      "128": "icons/128.png",
+      "216": "icons/216.png",
+      "234": "icons/234.png",
+      "256": "icons/256.png",
+      "258": "icons/258.png",
+      "512": "icons/512.png",
+      "1024": "icons/1024.png"
+  },
   "permissions": [
     "scripting",
     "activeTab",
     "tabs",
     "storage"
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -34,14 +60,17 @@
       "1024": "icons/1024.png"
     }
   },
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "run_at": "document_end"
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["style.css", "icons/*"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
