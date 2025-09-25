@@ -1,29 +1,30 @@
-// Utility: get XPath of an element
-function getXPath(element) {
-  if (element.id) {
-    return `//*[@id="${element.id}"]`;
-  }
-  if (element === document.body) {
-    return "/html/body";
-  }
+// content.js
 
-  let ix = 0;
-  let siblings = element.parentNode ? element.parentNode.childNodes : [];
-  for (let i = 0; i < siblings.length; i++) {
-    let sibling = siblings[i];
-    if (sibling.nodeType === 1 && sibling.nodeName === element.nodeName) {
-      ix++;
-      if (sibling === element) {
-        return getXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + "[" + ix + "]";
-      }
+// Get XPath of element
+function getXPath(element) {
+  if (!element) return null;
+  if (element.id) return `//*[@id="${element.id}"]`;
+  if (element === document.body) return "/html/body";
+
+  const parts = [];
+  while (element && element.nodeType === 1) {
+    let nb = 0;
+    let sib = element.previousSibling;
+    while (sib) {
+      if (sib.nodeType === 1 && sib.nodeName === element.nodeName) nb++;
+      sib = sib.previousSibling;
     }
+    const idx = nb ? `[${nb + 1}]` : "";
+    parts.unshift(element.nodeName.toLowerCase() + idx);
+    element = element.parentNode;
   }
+  return "/" + parts.join("/");
 }
 
-// Utility: get unique CSS path
+// CSS path generator
 function getCssPath(el) {
-  if (!(el instanceof Element)) return;
-  var path = [];
+  if (!(el instanceof Element)) return null;
+  const path = [];
   while (el.nodeType === Node.ELEMENT_NODE) {
     let selector = el.nodeName.toLowerCase();
     if (el.id) {
@@ -31,9 +32,9 @@ function getCssPath(el) {
       path.unshift(selector);
       break;
     } else {
-      let sib = el, nth = 1;
-      while (sib = sib.previousElementSibling) {
-        if (sib.nodeName.toLowerCase() == selector) nth++;
+      let sibling = el, nth = 1;
+      while (sibling = sibling.previousElementSibling) {
+        if (sibling.nodeName.toLowerCase() === el.nodeName.toLowerCase()) nth++;
       }
       if (nth !== 1) selector += `:nth-of-type(${nth})`;
     }
@@ -43,19 +44,50 @@ function getCssPath(el) {
   return path.join(" > ");
 }
 
-// Capture element on click
-document.addEventListener("click", async (event) => {
-  event.preventDefault();
-  event.stopPropagation();
+// On click capture
+document.addEventListener("click", (event) => {
+  // Allow modifier key to force-ignore recording (optional)
+  // event.ctrlKey etc.
 
-  let el = event.target;
-  let xpath = getXPath(el);
-  let cssPath = getCssPath(el);
-  let rect = el.getBoundingClientRect();
+  // Determine if recording is enabled
+  chrome.storage.sync.get(["recordingEnabled"], (data) => {
+    if (!data.recordingEnabled) return;
 
-  // Ask background to take screenshot
-  chrome.runtime.sendMessage({
-    type: "capture",
-    data: { xpath, cssPath, rect }
+    event.preventDefault();
+    event.stopPropagation();
+
+    const el = event.target;
+    const xpath = getXPath(el);
+    const cssPath = getCssPath(el);
+    const rect = el.getBoundingClientRect();
+    // Convert to page coordinates (so screenshot cropping aligns with page scroll)
+    const pageRect = {
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+      height: rect.height
+    };
+
+    // include devicePixelRatio to scale cropping properly in background
+    const dpr = window.devicePixelRatio || 1;
+
+    chrome.runtime.sendMessage({
+      type: "capture",
+      data: {
+        url: location.href,
+        title: document.title,
+        xpath,
+        cssPath,
+        rect: pageRect,
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        },
+        dpr,
+        timestamp: Date.now()
+      }
+    }, (response) => {
+      // optional callback if needed
+    });
   });
-});
+}, true);

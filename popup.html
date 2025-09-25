@@ -1,12 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="tailwind.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>XPath Recorder</title>
   </head>
-  <body>
+  <body >
     <h3>XPath Recorder</h3>
+    <div class="controls">
+      <label><input type="checkbox" id="cropToggle" checked /> Crop element (default)</label>
+      <div class="recording-status">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">Not Recording</span>
+      </div>
+      <div class="footer">
+        <button id="start">Start Recording</button>
+        <button id="stop">Stop</button>
+      </div>
+    </div>
+
     <div id="recordings"></div>
-    <button id="export">Export JSON</button>
+
+    <div class="footer">
+      <button id="export">Export Data</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> 
     <script src="popup.js"></script>
   </body>
 </html>
